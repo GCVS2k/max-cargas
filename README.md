@@ -75,5 +75,5 @@ O aplicativo foi desenvolvido para:
 
 ## 10. Integrantes do Grupo
 
-* Guilherme Cally Vilela da Silva - Matrícula XXXXX
-* [cite_start]*(Liste todos os membros do grupo, se aplicável)* [cite: 175]
+* Daniel Nunes Teixeira Ferreira | RA: 72451398
+* Guilherme Cally Vilela da Silva | RA: 72451221
