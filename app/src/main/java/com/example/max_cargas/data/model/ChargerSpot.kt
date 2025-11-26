@@ -1,15 +1,18 @@
 package com.example.max_cargas.data.model
 
-import com.google.firebase.firestore.GeoPoint
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 
+@Entity(tableName = "charger_spots")
 data class ChargerSpot(
-    val id: String = "",
-    val name: String = "",
-    val address: String = "",
-    val location: GeoPoint? = null,
-    val connectorType: String = "",
-    val price: Double = 0.0,
-    val isAvailable: Boolean = true,
-    val description: String = "",
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    val name: String,
+    val address: String,
+    val latitude: Double,
+    val longitude: Double,
+    val connectorType: String,
+    val price: Double,
+    val isAvailable: Boolean,
+    val description: String,
     val photoUrl: String = ""
 )
