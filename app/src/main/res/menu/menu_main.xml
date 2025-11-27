@@ -10,12 +10,6 @@
         app:showAsAction="never" />
 
     <item
-        android:id="@+id/action_back_to_map"
-        android:orderInCategory="101"
-        android:title="Voltar ao Mapa"
-        app:showAsAction="never" />
-        
-    <item
         android:id="@+id/action_about"
         android:orderInCategory="102"
         android:title="Sobre"

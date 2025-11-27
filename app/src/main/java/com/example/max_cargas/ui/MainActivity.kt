@@ -28,7 +28,7 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(binding.toolbar)
 
         navController = findNavController(R.id.nav_host_fragment_content_main)
-        appBarConfiguration = AppBarConfiguration(navController.graph)
+        appBarConfiguration = AppBarConfiguration(setOf(R.id.MapFragment))
         setupActionBarWithNavController(navController, appBarConfiguration)
 
         // Controle de visibilidade da Toolbar
@@ -63,18 +63,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 true
             }
-            R.id.action_back_to_map -> {
-                try {
-                    if (navController.currentDestination?.id == R.id.UserFragment) {
-                        navController.popBackStack()
-                    } else if (navController.currentDestination?.id != R.id.MapFragment) {
-                        navController.navigate(R.id.MapFragment)
-                    }
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-                true
-            }
+
             R.id.action_about -> {
                 // Navega para a tela Sobre
                 try {
