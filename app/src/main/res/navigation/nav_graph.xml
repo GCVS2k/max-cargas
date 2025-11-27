@@ -21,5 +21,21 @@
         android:id="@+id/MapFragment"
         android:name="com.example.max_cargas.ui.MapFragment"
         android:label="Mapa de Pontos"
-        tools:layout="@layout/fragment_map" />
+        tools:layout="@layout/fragment_map">
+        <action
+            android:id="@+id/action_MapFragment_to_UserFragment"
+            app:destination="@id/UserFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/UserFragment"
+        android:name="com.example.max_cargas.ui.UserFragment"
+        android:label="Perfil do Usuário"
+        tools:layout="@layout/fragment_user">
+        <action
+            android:id="@+id/action_UserFragment_to_LoginFragment"
+            app:destination="@id/LoginFragment"
+            app:popUpTo="@id/MapFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
 </navigation>

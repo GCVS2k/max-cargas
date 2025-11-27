@@ -1,5 +1,6 @@
 package com.example.max_cargas.ui
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -30,6 +31,13 @@ class LoginFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Verifica se já está logado
+        val sharedPref = requireActivity().getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+        val savedUserId = sharedPref.getInt("USER_ID", -1)
+        if (savedUserId != -1) {
+            findNavController().navigate(R.id.action_LoginFragment_to_MapFragment)
+        }
+
         val db = AppDatabase.getDatabase(requireContext())
         val userDao = db.userDao()
 
@@ -41,7 +49,11 @@ class LoginFragment : Fragment() {
                 lifecycleScope.launch {
                     val user = userDao.login(email, password)
                     if (user != null) {
-                        // Login bem sucedido
+                        // Salva o ID do usuário logado
+                        with(sharedPref.edit()) {
+                            putInt("USER_ID", user.id)
+                            apply()
+                        }
                         findNavController().navigate(R.id.action_LoginFragment_to_MapFragment)
                     } else {
                         Toast.makeText(context, "Email ou senha incorretos.", Toast.LENGTH_SHORT).show()
@@ -61,8 +73,14 @@ class LoginFragment : Fragment() {
                     val existingUser = userDao.getUserByEmail(email)
                     if (existingUser == null) {
                         val newUser = User(email = email, password = password, name = "Usuário")
-                        userDao.insert(newUser)
-                        Toast.makeText(context, "Cadastro realizado! Faça login.", Toast.LENGTH_SHORT).show()
+                        // Salva e já loga
+                        val newId = userDao.insert(newUser)
+                         with(sharedPref.edit()) {
+                            putInt("USER_ID", newId.toInt())
+                            apply()
+                        }
+                        Toast.makeText(context, "Cadastro realizado!", Toast.LENGTH_SHORT).show()
+                        findNavController().navigate(R.id.action_LoginFragment_to_MapFragment)
                     } else {
                         Toast.makeText(context, "Usuário já existe.", Toast.LENGTH_SHORT).show()
                     }
