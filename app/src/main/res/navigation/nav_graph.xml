@@ -20,7 +20,7 @@
     <fragment
         android:id="@+id/MapFragment"
         android:name="com.example.max_cargas.ui.MapFragment"
-        android:label="Mapa de Pontos"
+        android:label="Mapa"
         tools:layout="@layout/fragment_map">
         <action
             android:id="@+id/action_MapFragment_to_UserFragment"
