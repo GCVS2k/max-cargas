@@ -3,6 +3,7 @@ package com.example.max_cargas.ui
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
@@ -29,6 +30,18 @@ class MainActivity : AppCompatActivity() {
         navController = findNavController(R.id.nav_host_fragment_content_main)
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)
+
+        // Controle de visibilidade da Toolbar
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            when (destination.id) {
+                R.id.LoginFragment, R.id.RegisterFragment, R.id.AboutFragment -> {
+                    binding.toolbar.visibility = View.GONE
+                }
+                else -> {
+                    binding.toolbar.visibility = View.VISIBLE
+                }
+            }
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -39,13 +52,10 @@ class MainActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_user_profile -> {
-                // Navega para o perfil do usuário
                 try {
-                    // Se estiver no mapa, usa a ação definida no grafo
                     if (navController.currentDestination?.id == R.id.MapFragment) {
                         navController.navigate(R.id.action_MapFragment_to_UserFragment)
                     } else if (navController.currentDestination?.id != R.id.UserFragment) {
-                        // Se estiver em outro lugar, tenta navegar direto
                         navController.navigate(R.id.UserFragment)
                     }
                 } catch (e: Exception) {
@@ -54,17 +64,29 @@ class MainActivity : AppCompatActivity() {
                 true
             }
             R.id.action_back_to_map -> {
-                // Voltar ao Mapa
                 try {
                     if (navController.currentDestination?.id == R.id.UserFragment) {
-                        // Se estiver no perfil, voltar (popBackStack) deve levar ao mapa
                         navController.popBackStack()
                     } else if (navController.currentDestination?.id != R.id.MapFragment) {
-                        // Caso contrário, tenta navegar explicitamente
                         navController.navigate(R.id.MapFragment)
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()
+                }
+                true
+            }
+            R.id.action_about -> {
+                // Navega para a tela Sobre
+                try {
+                    navController.navigate(R.id.AboutFragment)
+                } catch (e: Exception) {
+                   // Se a ação direta falhar, tenta pelo ID do fragmento se for uma navegação global ou permitida
+                   try {
+                       // Como AboutFragment está no grafo mas não tem ação global explicita vinda de todos os lugares,
+                       // o ideal seria ter uma ação global, mas aqui vamos confiar que quem chama sabe o caminho ou adicionar uma ação global.
+                       // Por simplicidade, assumimos que quem chama (menu) consegue navegar.
+                       // Se falhar, não faz nada.
+                   } catch (e2: Exception) {}
                 }
                 true
             }

@@ -14,4 +14,10 @@
         android:orderInCategory="101"
         android:title="Voltar ao Mapa"
         app:showAsAction="never" />
+        
+    <item
+        android:id="@+id/action_about"
+        android:orderInCategory="102"
+        android:title="Sobre"
+        app:showAsAction="never" />
 </menu>

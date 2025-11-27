@@ -15,6 +15,24 @@
             app:destination="@id/MapFragment"
             app:popUpTo="@id/LoginFragment"
             app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_LoginFragment_to_RegisterFragment"
+            app:destination="@id/RegisterFragment" />
+        <action
+            android:id="@+id/action_LoginFragment_to_AboutFragment"
+            app:destination="@id/AboutFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/RegisterFragment"
+        android:name="com.example.max_cargas.ui.RegisterFragment"
+        android:label="Cadastro"
+        tools:layout="@layout/fragment_register">
+        <action
+            android:id="@+id/action_RegisterFragment_to_MapFragment"
+            app:destination="@id/MapFragment"
+            app:popUpTo="@id/LoginFragment"
+            app:popUpToInclusive="true" />
     </fragment>
 
     <fragment
@@ -30,7 +48,7 @@
     <fragment
         android:id="@+id/UserFragment"
         android:name="com.example.max_cargas.ui.UserFragment"
-        android:label="Perfil do Usuário"
+        android:label="Meu perfil"
         tools:layout="@layout/fragment_user">
         <action
             android:id="@+id/action_UserFragment_to_LoginFragment"
@@ -38,4 +56,10 @@
             app:popUpTo="@id/MapFragment"
             app:popUpToInclusive="true" />
     </fragment>
+
+    <fragment
+        android:id="@+id/AboutFragment"
+        android:name="com.example.max_cargas.ui.AboutFragment"
+        android:label="Sobre o App"
+        tools:layout="@layout/fragment_about" />
 </navigation>
