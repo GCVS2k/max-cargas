@@ -1,0 +1,17 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.example.max_cargas.ui.MainActivity">
+    
+    <item
+        android:id="@+id/action_user_profile"
+        android:orderInCategory="100"
+        android:title="Meu Perfil"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_about"
+        android:orderInCategory="102"
+        android:title="Sobre"
+        app:showAsAction="never" />
+</menu>

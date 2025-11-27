@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/LoginFragment">
+
+    <fragment
+        android:id="@+id/LoginFragment"
+        android:name="com.example.max_cargas.ui.LoginFragment"
+        android:label="Login"
+        tools:layout="@layout/fragment_login">
+        <action
+            android:id="@+id/action_LoginFragment_to_MapFragment"
+            app:destination="@id/MapFragment"
+            app:popUpTo="@id/LoginFragment"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_LoginFragment_to_RegisterFragment"
+            app:destination="@id/RegisterFragment" />
+        <action
+            android:id="@+id/action_LoginFragment_to_AboutFragment"
+            app:destination="@id/AboutFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/RegisterFragment"
+        android:name="com.example.max_cargas.ui.RegisterFragment"
+        android:label="Cadastro"
+        tools:layout="@layout/fragment_register">
+        <action
+            android:id="@+id/action_RegisterFragment_to_MapFragment"
+            app:destination="@id/MapFragment"
+            app:popUpTo="@id/LoginFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/MapFragment"
+        android:name="com.example.max_cargas.ui.MapFragment"
+        android:label="Mapa"
+        tools:layout="@layout/fragment_map">
+        <action
+            android:id="@+id/action_MapFragment_to_UserFragment"
+            app:destination="@id/UserFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/UserFragment"
+        android:name="com.example.max_cargas.ui.UserFragment"
+        android:label="Meu perfil"
+        tools:layout="@layout/fragment_user">
+        <action
+            android:id="@+id/action_UserFragment_to_LoginFragment"
+            app:destination="@id/LoginFragment"
+            app:popUpTo="@id/MapFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/AboutFragment"
+        android:name="com.example.max_cargas.ui.AboutFragment"
+        android:label="Sobre o App"
+        tools:layout="@layout/fragment_about" />
+</navigation>
