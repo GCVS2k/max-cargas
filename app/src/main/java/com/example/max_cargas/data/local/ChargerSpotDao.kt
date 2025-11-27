@@ -1,6 +1,7 @@
 package com.example.max_cargas.data.local
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import com.example.max_cargas.data.model.ChargerSpot
@@ -12,4 +13,7 @@ interface ChargerSpotDao {
 
     @Insert
     suspend fun insert(spot: ChargerSpot)
+
+    @Delete
+    suspend fun delete(spot: ChargerSpot)
 }

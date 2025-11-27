@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import com.example.max_cargas.data.model.ChargerSpot
 import com.example.max_cargas.data.model.User
 
-@Database(entities = [User::class, ChargerSpot::class], version = 1)
+@Database(entities = [User::class, ChargerSpot::class], version = 2)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun userDao(): UserDao
     abstract fun chargerSpotDao(): ChargerSpotDao
@@ -22,7 +22,9 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "charge_bsb_database"
-                ).build()
+                )
+                .fallbackToDestructiveMigration() // Permite recriar o banco se a versão mudar (útil em dev)
+                .build()
                 INSTANCE = instance
                 instance
             }

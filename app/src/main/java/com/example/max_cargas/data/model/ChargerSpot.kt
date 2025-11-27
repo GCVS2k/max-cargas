@@ -14,5 +14,6 @@ data class ChargerSpot(
     val price: Double,
     val isAvailable: Boolean,
     val description: String,
-    val photoUrl: String = ""
+    val photoUrl: String = "",
+    val addedBy: String = "Anônimo" // Novo campo para o nome do criador
 )

@@ -1,6 +1,7 @@
 package com.example.max_cargas.ui
 
 import android.app.AlertDialog
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -19,6 +20,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.coroutines.launch
 
@@ -53,7 +55,8 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         if (isEditMode) {
             binding.fabToggleEditMode.setImageDrawable(ContextCompat.getDrawable(requireContext(), android.R.drawable.ic_menu_close_clear_cancel))
             binding.textEditModeIndicator.visibility = View.VISIBLE
-            Toast.makeText(context, "Modo de Edição ATIVADO: Toque no mapa para adicionar", Toast.LENGTH_SHORT).show()
+            binding.textEditModeIndicator.text = "MODO EDIÇÃO: Toque no mapa p/ criar ou no pino p/ apagar"
+            Toast.makeText(context, "Modo de Edição ATIVADO", Toast.LENGTH_SHORT).show()
         } else {
             binding.fabToggleEditMode.setImageDrawable(ContextCompat.getDrawable(requireContext(), android.R.drawable.ic_input_add))
             binding.textEditModeIndicator.visibility = View.GONE
@@ -71,10 +74,20 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         // Carrega os pontos salvos
         loadSavedSpots()
 
-        // Configura o clique no mapa
+        // Configura o clique no mapa (Criar Ponto)
         mMap.setOnMapClickListener { latLng ->
             if (isEditMode) {
                 showAddSpotDialog(latLng)
+            }
+        }
+
+        // Configura o clique no marcador (Deletar Ponto)
+        mMap.setOnMarkerClickListener { marker ->
+            if (isEditMode) {
+                showDeleteSpotDialog(marker)
+                true // Consome o evento (não abre a info window padrão)
+            } else {
+                false // Deixa o comportamento padrão (abrir info window com nome/autor)
             }
         }
     }
@@ -98,27 +111,68 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             .show()
     }
 
-    private fun saveSpot(name: String, latLng: LatLng) {
-        val newSpot = ChargerSpot(
-            name = name,
-            address = "Endereço a definir", // Simplificação
-            latitude = latLng.latitude,
-            longitude = latLng.longitude,
-            connectorType = "Tipo 2", // Padrão
-            price = 0.0,
-            isAvailable = true,
-            description = "Adicionado pelo usuário"
-        )
+    private fun showDeleteSpotDialog(marker: Marker) {
+        val spot = marker.tag as? ChargerSpot
+        if (spot != null) {
+            AlertDialog.Builder(context)
+                .setTitle("Excluir Ponto")
+                .setMessage("Deseja remover o ponto '${spot.name}'?")
+                .setPositiveButton("Excluir") { _, _ ->
+                    deleteSpot(spot, marker)
+                }
+                .setNegativeButton("Cancelar", null)
+                .show()
+        } else {
+             // Caso o marcador não tenha tag (ex: marcadores estáticos ou erro de carga), remove só visualmente se desejar, 
+             // mas aqui vamos assumir que só deletamos o que está no banco.
+             Toast.makeText(context, "Não é possível remover este ponto.", Toast.LENGTH_SHORT).show()
+        }
+    }
 
+    private fun saveSpot(name: String, latLng: LatLng) {
         val db = AppDatabase.getDatabase(requireContext())
-        
+        val sharedPref = requireActivity().getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+        val userId = sharedPref.getInt("USER_ID", -1)
+
         lifecycleScope.launch {
+            // Busca o nome do usuário criador
+            var creatorName = "Anônimo"
+            if (userId != -1) {
+                val user = db.userDao().getUserById(userId)
+                if (user != null && user.name.isNotEmpty()) {
+                    creatorName = user.name
+                }
+            }
+
+            val newSpot = ChargerSpot(
+                name = name,
+                address = "Endereço a definir",
+                latitude = latLng.latitude,
+                longitude = latLng.longitude,
+                connectorType = "Tipo 2",
+                price = 0.0,
+                isAvailable = true,
+                description = "Adicionado por usuário",
+                addedBy = creatorName
+            )
+
             db.chargerSpotDao().insert(newSpot)
             
-            // Adiciona o marcador no mapa visualmente
-            mMap.addMarker(MarkerOptions().position(latLng).title(name))
-            Toast.makeText(context, "Ponto adicionado com sucesso!", Toast.LENGTH_SHORT).show()
+            // Recarrega os pontos para garantir que temos o ID correto na tag do marcador
+            mMap.clear()
+            loadSavedSpots()
+            
+            Toast.makeText(context, "Ponto adicionado por $creatorName!", Toast.LENGTH_SHORT).show()
         }
+    }
+    
+    private fun deleteSpot(spot: ChargerSpot, marker: Marker) {
+         val db = AppDatabase.getDatabase(requireContext())
+         lifecycleScope.launch {
+             db.chargerSpotDao().delete(spot)
+             marker.remove()
+             Toast.makeText(context, "Ponto removido.", Toast.LENGTH_SHORT).show()
+         }
     }
 
     private fun loadSavedSpots() {
@@ -128,7 +182,14 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             val spots = db.chargerSpotDao().getAllSpots()
             spots.forEach { spot ->
                 val position = LatLng(spot.latitude, spot.longitude)
-                mMap.addMarker(MarkerOptions().position(position).title(spot.name))
+                val marker = mMap.addMarker(
+                    MarkerOptions()
+                        .position(position)
+                        .title(spot.name)
+                        .snippet("Adicionado por: ${spot.addedBy}")
+                )
+                // Salva o objeto ChargerSpot dentro do marcador para podermos deletá-lo depois
+                marker?.tag = spot
             }
         }
     }
