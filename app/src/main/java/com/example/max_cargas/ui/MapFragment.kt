@@ -2,6 +2,8 @@ package com.example.max_cargas.ui
 
 import android.app.AlertDialog
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -19,6 +21,8 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.BitmapDescriptor
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
@@ -30,7 +34,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     private val binding get() = _binding!!
     private lateinit var mMap: GoogleMap
     private var isEditMode = false
-    private val SYSTEM_USER = "Sistema" // Identificador para pontos fixos
+    private val SYSTEM_USER = "Sistema"
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -49,6 +53,10 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         binding.fabToggleEditMode.setOnClickListener {
             toggleEditMode()
         }
+        
+        // Cor do FAB
+        binding.fabToggleEditMode.backgroundTintList = ContextCompat.getColorStateList(requireContext(), R.color.eco_green_primary)
+        binding.fabToggleEditMode.imageTintList = ContextCompat.getColorStateList(requireContext(), R.color.white)
     }
 
     private fun toggleEditMode() {
@@ -57,6 +65,8 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             binding.fabToggleEditMode.setImageDrawable(ContextCompat.getDrawable(requireContext(), android.R.drawable.ic_menu_close_clear_cancel))
             binding.textEditModeIndicator.visibility = View.VISIBLE
             binding.textEditModeIndicator.text = "MODO EDIÇÃO: Toque no mapa p/ criar ou no pino p/ apagar"
+            binding.textEditModeIndicator.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.eco_accent))
+            binding.textEditModeIndicator.setTextColor(ContextCompat.getColor(requireContext(), R.color.eco_green_dark))
             Toast.makeText(context, "Modo de Edição ATIVADO", Toast.LENGTH_SHORT).show()
         } else {
             binding.fabToggleEditMode.setImageDrawable(ContextCompat.getDrawable(requireContext(), android.R.drawable.ic_input_add))
@@ -68,21 +78,17 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
-        // Configura o mapa inicial em Brasília
         val brasilia = LatLng(-15.7975, -47.8919)
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(brasilia, 12f))
 
-        // Verifica se precisa adicionar pontos iniciais e carrega
         checkAndAddInitialSpots()
 
-        // Configura o clique no mapa (Criar Ponto)
         mMap.setOnMapClickListener { latLng ->
             if (isEditMode) {
                 showAddSpotDialog(latLng)
             }
         }
 
-        // Configura o clique no marcador (Deletar Ponto)
         mMap.setOnMarkerClickListener { marker ->
             val spot = marker.tag as? ChargerSpot
             
@@ -100,19 +106,26 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             }
         }
     }
+    
+    private fun bitmapDescriptorFromVector(context: Context, vectorResId: Int): BitmapDescriptor? {
+        return ContextCompat.getDrawable(context, vectorResId)?.run {
+            setBounds(0, 0, intrinsicWidth, intrinsicHeight)
+            val bitmap = Bitmap.createBitmap(intrinsicWidth, intrinsicHeight, Bitmap.Config.ARGB_8888)
+            draw(Canvas(bitmap))
+            BitmapDescriptorFactory.fromBitmap(bitmap)
+        }
+    }
 
     private fun checkAndAddInitialSpots() {
         val db = AppDatabase.getDatabase(requireContext())
         lifecycleScope.launch {
             val spots = db.chargerSpotDao().getAllSpots()
             if (spots.isEmpty()) {
-                // Adiciona pontos fixos se o banco estiver vazio
                 val initialSpots = listOf(
                     ChargerSpot(name = "Aeroporto Internacional de Brasília", address = "Lago Sul", latitude = -15.8697, longitude = -47.9172, connectorType = "Tipo 2", price = 0.0, isAvailable = true, description = "Estacionamento Premium", addedBy = SYSTEM_USER),
                     ChargerSpot(name = "Shopping Conjunto Nacional", address = "SDN CNB", latitude = -15.7924, longitude = -47.8824, connectorType = "Tipo 2", price = 0.0, isAvailable = true, description = "Piso G2", addedBy = SYSTEM_USER),
                     ChargerSpot(name = "ParkShopping", address = "SAI/SO Área 6580", latitude = -15.8353, longitude = -47.9557, connectorType = "CCS2", price = 1.50, isAvailable = true, description = "Eletroposto Volvo", addedBy = SYSTEM_USER),
                     ChargerSpot(name = "Pontão do Lago Sul", address = "SHIS QL 10", latitude = -15.8267, longitude = -47.8708, connectorType = "Tipo 2", price = 0.0, isAvailable = true, description = "Próximo aos restaurantes", addedBy = SYSTEM_USER),
-                    // Novos pontos
                     ChargerSpot(name = "Estádio Mané Garrincha", address = "SRPN", latitude = -15.7837, longitude = -47.8990, connectorType = "CHAdeMO", price = 0.0, isAvailable = true, description = "Estacionamento Norte", addedBy = SYSTEM_USER),
                     ChargerSpot(name = "Torre de TV", address = "Eixo Monumental", latitude = -15.7906, longitude = -47.8928, connectorType = "Tipo 2", price = 0.0, isAvailable = true, description = "Feira da Torre", addedBy = SYSTEM_USER),
                     ChargerSpot(name = "Brasília Shopping", address = "SCN Quadra 5", latitude = -15.7860, longitude = -47.8885, connectorType = "Tipo 2", price = 2.00, isAvailable = true, description = "G1 - Vaga Verde", addedBy = SYSTEM_USER),
@@ -126,8 +139,6 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                 )
                 
                 initialSpots.forEach { db.chargerSpotDao().insert(it) }
-                
-                // Após inserir, recarrega
                 loadSavedSpots()
             } else {
                 loadSavedSpots()
@@ -171,7 +182,6 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         val userId = sharedPref.getInt("USER_ID", -1)
 
         lifecycleScope.launch {
-            // Busca o nome do usuário criador
             var creatorName = "Anônimo"
             if (userId != -1) {
                 val user = db.userDao().getUserById(userId)
@@ -217,12 +227,18 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             val spots = db.chargerSpotDao().getAllSpots()
             spots.forEach { spot ->
                 val position = LatLng(spot.latitude, spot.longitude)
-                val marker = mMap.addMarker(
-                    MarkerOptions()
+                val markerOptions = MarkerOptions()
                         .position(position)
                         .title(spot.name)
                         .snippet("Adicionado por: ${spot.addedBy}")
-                )
+                
+                // Adiciona ícone personalizado
+                val icon = bitmapDescriptorFromVector(requireContext(), R.drawable.ic_charger_marker)
+                if (icon != null) {
+                    markerOptions.icon(icon)
+                }
+
+                val marker = mMap.addMarker(markerOptions)
                 marker?.tag = spot
             }
         }
