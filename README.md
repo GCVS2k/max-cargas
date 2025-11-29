@@ -1,9 +1,8 @@
-# max-cargas
+# Charge BSB
 Aplicativo Mobile de localização de pontos de carregamento em Brasília-DF.
 Localizador de Pontos de Carregamento em Brasília
 
-![Banner do App](https://via.placeholder.com/800x200.png?text=Charge+BSB)
-*Insira aqui um banner ou uma imagem principal do seu aplicativo.*
+![Banner do App](assets/app.png)
 
 ## 1. Descrição do Problema
 
@@ -41,9 +40,7 @@ O aplicativo foi desenvolvido para:
 ## 6. Tecnologias Utilizadas
 
 * **Linguagem:** Kotlin
-* **Backend as a Service (BaaS):** Google Firebase
-    * **Banco de Dados:** Cloud Firestore
-    * **Autenticação:** Firebase Authentication (para cadastro de usuários)
+* **Banco de dados:** SQLite
 * **APIs:** Google Maps API
 * **IDE:** Android Studio
 
@@ -54,24 +51,16 @@ O aplicativo foi desenvolvido para:
 * Emulador Android (API 28 ou superior) ou um dispositivo físico.
 
 **Passo a passo:**
-1.  Clone o repositório: `git clone https://github.com/seu-usuario/charge-bsb.git`
+1.  Clone o repositório: `git clone https://github.com/GCVS2k/CHARGE-BSB.git`
 2.  Abra o projeto no Android Studio.
 3.  O Android Studio irá sincronizar e baixar as dependências (Gradle Sync).
 4.  Execute o aplicativo clicando no botão 'Run'.
-
-*(Esta seção será detalhada conforme o projeto avançar)*
 
 ## 8. Requisitos do Sistema
 
 * **Sistema Operacional:** Android 9.0 (Pie) ou superior.
 
 ## 9. Evidências Visuais (Screenshots)
-
-*(Em breve)*
-
-| Tela Principal (Mapa) | Tela de Detalhes do Ponto | Tela de Cadastro |
-| :---: |:---:|:---:|
-| *(Insira o print da tela aqui)* | *(Insira o print da tela aqui)* | *(Insira o print da tela aqui)* |
 
 ## 10. Integrantes do Grupo
 
