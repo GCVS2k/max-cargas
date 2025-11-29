@@ -2,7 +2,12 @@
 Aplicativo Mobile de localização de pontos de carregamento em Brasília-DF.
 Localizador de Pontos de Carregamento em Brasília
 
-![Banner do App](assets/app.png)
+<div align="center">
+  <div><sub>Figura X: Logo da Charge BSB</sub></div>
+  <img src="./assets/logo.png" width="60%">
+  <div><sup>Fonte: Os autores (2025)</sup></div>
+</div>
+
 
 ## 1. Descrição do Problema
 
@@ -61,6 +66,16 @@ O aplicativo foi desenvolvido para:
 * **Sistema Operacional:** Android 9.0 (Pie) ou superior.
 
 ## 9. Evidências Visuais (Screenshots)
+
+
+| <img src="./assets/Screen_1.png" width="350"> | <img src="./assets/Screen_2.png" width="350"> | <img src="./assets/Screen_3.png" width="350"> |  <img src="./assets/Screen_4.png" width="350"> |<img src="./assets/Screen_6.png" width="350">                      |
+|:---------------------------------------------:|:---------------------------------------------:|:---------------------------------------------:|:----------------------------------------------:|:----------------------------------------------:|
+| **Figura 2:** Tela inicial                    | **Figura 3:** Tela cadastro                   | **Figura 4:** About                           |  **Figura 5:** Mapa                            |**Figura 6:** Tela do perfil                                          |
+
+| <img src="./assets/Screen_7.png" width="350"> |  <img src="./assets/Screen_8.png" width="350"> | <img src="./assets/Screen_9.png" width="350"> | <img src="./assets/Screen_10.png" width="350">| <img src="./assets/Screen_11.png" width="350">                     |
+|:---------------------------------------------:|:---------------------------------------------:|:---------------------------------------------:|:----------------------------------------------:|:----------------------------------------------:|
+| **Figura 7:** Ponto 1                         |  **Figura 8:** Ponto 2                         | **Figura 9:** Adicionar ponto                | **Figura 10:** Excluir ponto                  | **Figura 11:** Mapa 2                                               |
+
 
 ## 10. Integrantes do Grupo
 
