@@ -7,8 +7,8 @@ import androidx.room.RoomDatabase
 import com.example.max_cargas.data.model.ChargerSpot
 import com.example.max_cargas.data.model.User
 
-// Versão atualizada para 3 para limpar dados antigos e evitar conflitos com a nova lógica de cadastro
-@Database(entities = [User::class, ChargerSpot::class], version = 3)
+// Versão 5: Adicionando mais 10 pontos fixos simulados
+@Database(entities = [User::class, ChargerSpot::class], version = 5)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun userDao(): UserDao
     abstract fun chargerSpotDao(): ChargerSpotDao
@@ -24,7 +24,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "charge_bsb_database"
                 )
-                .fallbackToDestructiveMigration() // Limpa o banco se a versão mudar
+                .fallbackToDestructiveMigration()
                 .build()
                 INSTANCE = instance
                 instance
