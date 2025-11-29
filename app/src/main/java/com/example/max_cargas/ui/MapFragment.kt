@@ -30,6 +30,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     private val binding get() = _binding!!
     private lateinit var mMap: GoogleMap
     private var isEditMode = false
+    private val SYSTEM_USER = "Sistema" // Identificador para pontos fixos
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -71,8 +72,8 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         val brasilia = LatLng(-15.7975, -47.8919)
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(brasilia, 12f))
 
-        // Carrega os pontos salvos
-        loadSavedSpots()
+        // Verifica se precisa adicionar pontos iniciais e carrega
+        checkAndAddInitialSpots()
 
         // Configura o clique no mapa (Criar Ponto)
         mMap.setOnMapClickListener { latLng ->
@@ -83,11 +84,53 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
         // Configura o clique no marcador (Deletar Ponto)
         mMap.setOnMarkerClickListener { marker ->
+            val spot = marker.tag as? ChargerSpot
+            
             if (isEditMode) {
-                showDeleteSpotDialog(marker)
-                true // Consome o evento (não abre a info window padrão)
+                if (spot != null) {
+                    if (spot.addedBy == SYSTEM_USER) {
+                        Toast.makeText(context, "Este é um ponto fixo do sistema e não pode ser removido.", Toast.LENGTH_LONG).show()
+                    } else {
+                        showDeleteSpotDialog(spot, marker)
+                    }
+                }
+                true 
             } else {
-                false // Deixa o comportamento padrão (abrir info window com nome/autor)
+                false 
+            }
+        }
+    }
+
+    private fun checkAndAddInitialSpots() {
+        val db = AppDatabase.getDatabase(requireContext())
+        lifecycleScope.launch {
+            val spots = db.chargerSpotDao().getAllSpots()
+            if (spots.isEmpty()) {
+                // Adiciona pontos fixos se o banco estiver vazio
+                val initialSpots = listOf(
+                    ChargerSpot(name = "Aeroporto Internacional de Brasília", address = "Lago Sul", latitude = -15.8697, longitude = -47.9172, connectorType = "Tipo 2", price = 0.0, isAvailable = true, description = "Estacionamento Premium", addedBy = SYSTEM_USER),
+                    ChargerSpot(name = "Shopping Conjunto Nacional", address = "SDN CNB", latitude = -15.7924, longitude = -47.8824, connectorType = "Tipo 2", price = 0.0, isAvailable = true, description = "Piso G2", addedBy = SYSTEM_USER),
+                    ChargerSpot(name = "ParkShopping", address = "SAI/SO Área 6580", latitude = -15.8353, longitude = -47.9557, connectorType = "CCS2", price = 1.50, isAvailable = true, description = "Eletroposto Volvo", addedBy = SYSTEM_USER),
+                    ChargerSpot(name = "Pontão do Lago Sul", address = "SHIS QL 10", latitude = -15.8267, longitude = -47.8708, connectorType = "Tipo 2", price = 0.0, isAvailable = true, description = "Próximo aos restaurantes", addedBy = SYSTEM_USER),
+                    // Novos pontos
+                    ChargerSpot(name = "Estádio Mané Garrincha", address = "SRPN", latitude = -15.7837, longitude = -47.8990, connectorType = "CHAdeMO", price = 0.0, isAvailable = true, description = "Estacionamento Norte", addedBy = SYSTEM_USER),
+                    ChargerSpot(name = "Torre de TV", address = "Eixo Monumental", latitude = -15.7906, longitude = -47.8928, connectorType = "Tipo 2", price = 0.0, isAvailable = true, description = "Feira da Torre", addedBy = SYSTEM_USER),
+                    ChargerSpot(name = "Brasília Shopping", address = "SCN Quadra 5", latitude = -15.7860, longitude = -47.8885, connectorType = "Tipo 2", price = 2.00, isAvailable = true, description = "G1 - Vaga Verde", addedBy = SYSTEM_USER),
+                    ChargerSpot(name = "Catedral Metropolitana", address = "Esplanada", latitude = -15.7975, longitude = -47.8624, connectorType = "Tipo 2", price = 0.0, isAvailable = true, description = "Acesso Lateral", addedBy = SYSTEM_USER),
+                    ChargerSpot(name = "Terraço Shopping", address = "SHC AOS", latitude = -15.8038, longitude = -47.9362, connectorType = "Tipo 2", price = 0.0, isAvailable = true, description = "Entrada Principal", addedBy = SYSTEM_USER),
+                    ChargerSpot(name = "Pátio Brasil Shopping", address = "SCS Quadra 7", latitude = -15.7958, longitude = -47.8922, connectorType = "Tipo 2", price = 1.00, isAvailable = true, description = "Estacionamento VIP", addedBy = SYSTEM_USER),
+                    ChargerSpot(name = "Iguatemi Brasília", address = "SHIN CA 4", latitude = -15.7185, longitude = -47.8845, connectorType = "CCS2", price = 0.0, isAvailable = true, description = "Deck Parking", addedBy = SYSTEM_USER),
+                    ChargerSpot(name = "Pier 21", address = "SCES Trecho 2", latitude = -15.8211, longitude = -47.8676, connectorType = "Tipo 2", price = 0.0, isAvailable = true, description = "Próximo ao Cinema", addedBy = SYSTEM_USER),
+                    ChargerSpot(name = "Centro de Convenções Ulysses", address = "SDC", latitude = -15.7856, longitude = -47.9030, connectorType = "Tipo 2", price = 0.0, isAvailable = true, description = "Entrada Sul", addedBy = SYSTEM_USER),
+                    ChargerSpot(name = "Esplanada dos Ministérios", address = "Bloco A", latitude = -15.7966, longitude = -47.8765, connectorType = "Tipo 2", price = 0.0, isAvailable = true, description = "Ministério da Economia", addedBy = SYSTEM_USER)
+                )
+                
+                initialSpots.forEach { db.chargerSpotDao().insert(it) }
+                
+                // Após inserir, recarrega
+                loadSavedSpots()
+            } else {
+                loadSavedSpots()
             }
         }
     }
@@ -111,22 +154,15 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             .show()
     }
 
-    private fun showDeleteSpotDialog(marker: Marker) {
-        val spot = marker.tag as? ChargerSpot
-        if (spot != null) {
-            AlertDialog.Builder(context)
-                .setTitle("Excluir Ponto")
-                .setMessage("Deseja remover o ponto '${spot.name}'?")
-                .setPositiveButton("Excluir") { _, _ ->
-                    deleteSpot(spot, marker)
-                }
-                .setNegativeButton("Cancelar", null)
-                .show()
-        } else {
-             // Caso o marcador não tenha tag (ex: marcadores estáticos ou erro de carga), remove só visualmente se desejar, 
-             // mas aqui vamos assumir que só deletamos o que está no banco.
-             Toast.makeText(context, "Não é possível remover este ponto.", Toast.LENGTH_SHORT).show()
-        }
+    private fun showDeleteSpotDialog(spot: ChargerSpot, marker: Marker) {
+        AlertDialog.Builder(context)
+            .setTitle("Excluir Ponto")
+            .setMessage("Deseja remover o ponto '${spot.name}'?")
+            .setPositiveButton("Excluir") { _, _ ->
+                deleteSpot(spot, marker)
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
     }
 
     private fun saveSpot(name: String, latLng: LatLng) {
@@ -158,7 +194,6 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
             db.chargerSpotDao().insert(newSpot)
             
-            // Recarrega os pontos para garantir que temos o ID correto na tag do marcador
             mMap.clear()
             loadSavedSpots()
             
@@ -188,7 +223,6 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                         .title(spot.name)
                         .snippet("Adicionado por: ${spot.addedBy}")
                 )
-                // Salva o objeto ChargerSpot dentro do marcador para podermos deletá-lo depois
                 marker?.tag = spot
             }
         }
